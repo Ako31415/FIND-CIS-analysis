@@ -209,7 +209,7 @@ for m in CG CHG CHH; do Rscript --vanilla create_methylBFdistribution_plots.R ${
 
 
 
-3. Create a plot investigating how consistent AMP classification is dependent on if a site is differentially methylated or not. Only look at sites that vary between differential, and non-differential methylation throughout the population.
+3. Create a plot investigating if consistent AMP classification is dependent on if a site is differentially methylated or not. Only look at sites that vary between differential, and non-differential methylation throughout the population.
 
 Merge files of different lines (only shown for CG context here):
 
@@ -223,3 +223,53 @@ Plot:
 ```{bash}
 Rscript --vanilla create_bindingBiasConsistency_plots.R
 ```
+
+
+
+
+
+
+## Supplementary analyses
+
+
+1. Create plots that compare methylation in 41bp and 11bp window with regard to those who show binding to the hypermethylated allele
+
+Repeat the steps described above with slight alteration to create files listing the mean methylation over +/-5 bp windows (11 bp total), instead of +/-20 bp windows (42 bp total).
+
+Files here will be called (only CG context): ${g}.WW.q255.11bp.CG.noNP.GT1.justMPs.tsv
+
+
+Merge files of both window sizes:
+
+```{bash}
+for g in [NAMparent1 NAMparent2 ...]; do echo ${g}; gawk -v OFS='\t' '{if(NR==FNR){ meth11bp[$1"_"$2]=$9"_"$10"_"$11; next } if($1"_"$2 in meth11bp){ split(meth11bp[$1"_"$2], a, "_"); print $0, a[1], a[2], a[3]}}' ${g}.WW.q255.11bp.CG.noNP.GT1.justMPs.tsv ${g}.WW.q255.41bp.CG.noNP.GT1.justMPs.tsv > ${g}.WW.q255.41bpVS11bp.CG.noNP.GT1.justMPs.tsv; done
+```
+
+
+Add columns that label wether a site has binding towards the hypomethylated allele (hypoBind) or the hypermethylated allele (hyperBind) for each of the window sizes:
+
+```{bash}
+for g in [NAMparent1 NAMparent2 ...]; do echo ${g}; gawk -v OFS='\t' '{if($7=="AMP"){ if(($8>0.5 && $9>0.7 && $10<0.1) || ($8<0.5 && $10>0.7 && $9<0.1)) { Cat41bp="hyperBind" } else if(($8<0.5 && $9>0.7 && $10<0.1) || ($8>0.5 && $10>0.7 && $9<0.1)) { Cat41bp="hypoBind" } else { Cat41bp="noDM" }; if(($8>0.5 && $12>0.7 && $13<0.1) || ($8<0.5 && $13>0.7 && $12<0.1)) { Cat11bp="hyperBind" } else if(($8<0.5 && $12>0.7 && $13<0.1) || ($8>0.5 && $13>0.7 && $12<0.1)) { Cat11bp="hypoBind" } else { Cat11bp="noDM" }; print $1, $2, $5, $8, $9, $10, $11, $12, $13, $14, Cat41bp, Cat11bp }}' ${g}.WW.q255.41bpVS11bp.CG.noNP.GT1.justMPs.tsv > ${g}.WW.q255.41bpVS11bp.CG.noNP.GT1.justMPs.AMP_methCats.tsv; done
+```
+
+
+Add columns with extra counts:
+
+```{bash}
+for g in [NAMparent1 NAMparent2 ...]; do echo ${g}; gawk -v OFS='\t' -v g=${g} 'BEGIN{ AMPCount=0; hyperbindCount=0; toHyper=0; toHypo=0; toNoDm=0 } {AMPCount+=1; if($11=="hyperBind"){ hyperbindCount+=1; if($12=="hyperBind") { toHyper+=1 } else if($12=="hypoBind") { toHypo+=1 } else if($12=="noDM") { toNoDm+=1 }}} END{ print g, AMPCount, hyperbindCount, toHyper, toHypo, toNoDm, hyperbindCount/AMPCount, toHyper/hyperbindCount, toHypo/hyperbindCount, toNoDm/hyperbindCount }' ${g}.WW.q255.41bpVS11bp.CG.noNP.GT1.justFPs.AMP_methCats.tsv >> ALL_Lines.41bpVS11bp.CG.hyperBindAMPChanges.tsv; done
+```
+
+New columns are: "NAM_line", "total_AFP_count", "41bp_hyperbindCount", "to_hyper_count", "to_hypo_count", "to_NoDM_count", "41bp_hyperbind_percent", "to_hyper_percent", "to_hypo_percent", "to_NoDM_percent"
+
+"NAM_line" indicate which hybrid the information is about;
+"total_AFP_count" how many AMPs the hybrid has in total;
+"41bp_hyperbindCount" how many AMPs have binding preferentially to the hypermethylated allele in total (41 bp window);
+"to_hyper_count" how many AMPs have binding preferentially to the hypermethylated allele in total (41 bp window  AND 11 bp window);
+"to_hypo_count" how many AMPs have binding preferentially to the hypermethylated allele in in the 41 bp window, but binding to the hypomethylated allele in the 11 bp window;
+"to_NoDM_count" how many AMPs have binding preferentially to the hypermethylated allele in in the 41 bp window, but are not differentially methylated in the 11 bp window;
+"41bp_hyperbind_percent" ratio of "41bp_hyperbindCount" and the total AMP count;
+"to_hyper_percent" ratio of "to_hyper_count" out of all hypermethylated-allele-bound sites for the 41 bp window;
+"to_hypo_percent" ratio of "to_hypo_count" out of all hypermethylated-allele-bound sites for the 41 bp window;
+"to_NoDM_percent" ratio of "to_NoDM_count" out of all hypermethylated-allele-bound sites for the 41 bp window;
+
+

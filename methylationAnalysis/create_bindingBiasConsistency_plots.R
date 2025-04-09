@@ -45,6 +45,10 @@ data <- data[data$dmAMP!="ucm_MP", ]
 
 
 ######## Try 2 dm 2 nodm 1 amp as requirements for the sites
+######## as in the number of inbred lines that are dm/noDm/amp at the specified site
+######## only take sites that meet the above requirement
+######## (dm=differentially methylated; noDm=not differentially methylated; amp=allele-specifically bound MOA-footprint)
+
 
 # get IDs of sites
 
