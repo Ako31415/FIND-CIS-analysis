@@ -262,14 +262,23 @@ for g in [NAMparent1 NAMparent2 ...]; do echo ${g}; gawk -v OFS='\t' -v g=${g} '
 New columns are: "NAM_line", "total_AFP_count", "41bp_hyperbindCount", "to_hyper_count", "to_hypo_count", "to_NoDM_count", "41bp_hyperbind_percent", "to_hyper_percent", "to_hypo_percent", "to_NoDM_percent"
 
 "NAM_line" indicate which hybrid the information is about;
+
 "total_AFP_count" how many AMPs the hybrid has in total;
+
 "41bp_hyperbindCount" how many AMPs have binding preferentially to the hypermethylated allele in total (41 bp window);
+
 "to_hyper_count" how many AMPs have binding preferentially to the hypermethylated allele in total (41 bp window  AND 11 bp window);
+
 "to_hypo_count" how many AMPs have binding preferentially to the hypermethylated allele in in the 41 bp window, but binding to the hypomethylated allele in the 11 bp window;
+
 "to_NoDM_count" how many AMPs have binding preferentially to the hypermethylated allele in in the 41 bp window, but are not differentially methylated in the 11 bp window;
+
 "41bp_hyperbind_percent" ratio of "41bp_hyperbindCount" and the total AMP count;
+
 "to_hyper_percent" ratio of "to_hyper_count" out of all hypermethylated-allele-bound sites for the 41 bp window;
+
 "to_hypo_percent" ratio of "to_hypo_count" out of all hypermethylated-allele-bound sites for the 41 bp window;
+
 "to_NoDM_percent" ratio of "to_NoDM_count" out of all hypermethylated-allele-bound sites for the 41 bp window;
 
 
