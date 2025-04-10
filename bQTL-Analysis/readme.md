@@ -37,12 +37,12 @@ Associated scripts: 1-moa_windows_perpare.jl
 The script will integrate genotype data (SNP and/or INDEL presence) with relative MOA BF data (condition dependent output for well-watered and drought data separated) and CG, CHG, and CHH methylation data for each genotype except A619. For A619 no methylation data was available and hence separate scripts were prepared to push A619 data into the output data set.
 
 Variables to be set in 1-moa_windows_RUN.sh: 	
-- $t = e.g., “WW” or “DS”  (environmental condition e.g., WW (well-watered) or DS (drought))
-- $v3 = “keep” or “”  (whether MOA data in regions that were not in significant peaks (below peak cutoff) should be used ("NPNRtoValue) or dismissed as NA (NPNRtoNA))
+- t = e.g., “WW” or “DS”  (environmental condition e.g., WW (well-watered) or DS (drought))
+- v3 = “keep” or “”  (whether MOA data in regions that were not in significant peaks (below peak cutoff) should be used ("NPNRtoValue") or dismissed as NA ("NPNRtoNA"))
 - PATH_TO_DATA: a directory containing a subdirectory /$t containing the TF binding and methylation data files described above
 - PATH_TO_JULIA: the path to the julia installation
 
-Output: $t-MOA_peak_ratio.csv, $t-CG_ratio.csv, $t-CHG_ratio.csv, $t-CHH_ratio.csv, $t-ReadDepth_ratio.csv (depreciated value for read depth at loci) all in a folder named PATH_TO_DATA/BindingFrequency/$v3
+Output: $t-MOA_peak_ratio.csv, $t-CG_ratio.csv, $t-CHG_ratio.csv, $t-CHH_ratio.csv, $t-ReadDepth_ratio.csv (depreciated value for read depth at loci) all in a folder named PATH_TO_DATA/BindingFrequency/NPNRtoValue for keeping below peak values and PATH_TO_DATA/BindingFrequency/NPNRtoValue for NA replacement
 
 ## Optional steps for no mehtylation data lines:
 Script: 1-zPush_A619_into_ratio.jl ; 1-zPush_A619_into_ReadDepth.jl 
@@ -60,12 +60,12 @@ These scripts will integrate the genotype data (SNP and/or INDEL values) with th
 
 Script: 2-split.sh
 
-Input:  $ENV-MOA_peak_ratio.csv, $ENV-CG_ratio.csv, $ENV-CHG_ratio.csv, $ENV-CHH_ratio.csv, $ENV-ReadDepth_ratio.csv (depreciated value for read depth at loci)
+Input:  $t-MOA_peak_ratio.csv, $t-CG_ratio.csv, $t-CHG_ratio.csv, $t-CHH_ratio.csv, $t-ReadDepth_ratio.csv (depreciated value for read depth at loci) all in a folder named PATH_TO_DATA/BindingFrequency/NPNRtoValue for keeping below peak values and PATH_TO_DATA/BindingFrequency/NPNRtoValue for NA replacement
 
-Variables: 	v1 = “keep” or “”  (whether MOA data in regions that were not in significant peaks (below peak cutoff) should be used ("NPNRtoValue”) or dismissed as NA (“NPNRtoNA”))
-	k = “WW” “DS” (environmental condition e.g., WW (well-watered) or DS (drought))
-i = {1..n} (chromosome ID )
-	v3="MOA_peak” “CG” “CHG” “CHH” “ReadDepth" (input parameters to split)
+Variables to be set in 2-split.sh: 	
+- v1 = “keep” or “”  (whether MOA data in regions that were not in significant peaks (below peak cutoff) should be used ("NPNRtoValue”) or dismissed as NA (“NPNRtoNA”))
+- v2 names of the conditions used, in our cae WW and DS
+- v3 "MOA_peak” “CG” “CHG” “CHH” “ReadDepth" (input parameters to split)
 
 Output: Splits the integrated MOA, methylation, and read depth data (depreciated) by chromosome in a separate folder. Since the association is tested locally for each input polymorphism (SNP or INDEL) in the genotype data, chromosomes can split to allow paralleled processing.
 
