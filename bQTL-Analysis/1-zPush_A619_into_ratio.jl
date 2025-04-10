@@ -1,9 +1,5 @@
 using CSV, DataFrames
 
-#miss = "NO"
-#a619 = "/Data/michael/MOA/Met_final/Normal_res/Raw_data/B73.A619.WW.q0_EG80.lowres.norm_read_count.p01.2AFP.csv"
-#peaks = "/Data/michael/MOA/Met_final/Normal_res/BindingFrequency/NPNRtoNA/p01_2AFP-WW-a619_peak_ratio.csv"
-
 function addA619(a619, peaks, miss)
 
                                     # bind the a619 ratio files with the A619 infomration 
@@ -37,11 +33,11 @@ function addA619(a619, peaks, miss)
  end
  
 #WW
-addA619("/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/B73.A619.WW.2FPs.csv", "/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/BindingFrequency/NPNRtoValue/WW-MOA_peak_ratio.csv", "keep")
+addA619("PATH_TO_A619_DATA_WW/A619_WW.csv", "PATH_TO_DATA/BindingFrequency/NPNRtoValue/WW-MOA_peak_ratio.csv", "keep")
 
-# addA619("/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/B73.A619.WW.2FPs.csv", "/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/BindingFrequency/NPNRtoNA/WW-MOA_peak_ratio.csv", "not_keep")
+# addA619("PATH_TO_A619_DATA_WW/A619_WW.csv", "PATH_TO_DATA/BindingFrequency/NPNRtoValue/WW-MOA_peak_ratio.csv", "not_keep")
 
 #DS
-addA619("/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/B73.A619.DS.2FPs.csv", "/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/BindingFrequency/NPNRtoValue/DS-MOA_peak_ratio.csv", "keep")
+addA619("PATH_TO_A619_DATA_DS/A619_DS.csv", "PATH_TO_DATA/BindingFrequency/NPNRtoValue/DS-MOA_peak_ratio.csv", "keep")
 
-# addA619("/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/B73.A619.DS.2FPs.csv", "/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/BindingFrequency/NPNRtoNA/DS-MOA_peak_ratio.csv", "not_keep")
+# addA619("PATH_TO_A619_DATA_DS/A619_DS.csv", "PATH_TO_DATA/BindingFrequency/NPNRtoValue/DS-MOA_peak_ratio.csv", "not_keep")
