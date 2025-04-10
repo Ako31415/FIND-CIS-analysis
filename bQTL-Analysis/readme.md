@@ -84,8 +84,8 @@ aom= “/splitted/${k}-MOA_peak_ratio_${i}_file.csv" (path to chromosome split h
 	oneg= 	“/GenotypeData_${k}/genotypes_divided_2FPs_${i}.csv" (path to condition-dependent genotype (SNPs/INDELs) input data; its condition-dependent as only variants found in at significant MOA peak in at least 1 haplotype were tested) 
 
 ### For genotype association
-Script:
-Associated script:script_Mety_singleFactor_inLM_Model_3.jl
+Script: 3-parallel_mapping_server_Value.LM.sh
+Associated script: 3-LM.jl
 ### For methylation association
 Script: 3-parallel_mapping_server_Value.LM.sh
 Associated script: 3-LM.jl
