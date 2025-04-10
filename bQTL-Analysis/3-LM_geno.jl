@@ -411,7 +411,7 @@ RD = leftjoin(moa[!,[:ID]], RD, on=:ID)
 # specify folder
 l1 = split(split(aom, "/")[length(split(aom, "/"))], "MOA")[1] 
 l2 = string(split(aom, "_")[9])# chr
-disk = "PATH_TO_DATA/NG_revision/Results/NPNRtoValue/snponly/$con/"
+disk = "PATH_TO_DATA/Results/NPNRtoValue/snponly/$con/"
 
 for m in string.(collect(keys(Results)))
                                 LOC = string(disk, con,"-" ,"MOA_", m, "_", me, "_", ".csv")
