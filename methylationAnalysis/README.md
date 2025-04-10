@@ -18,23 +18,15 @@ The input files for the SNPs were the following:
 
     (${g} as bash variable for each of the NAM parent/genotype names)
 
-@Julia: Please check that it is these files: 
-    
-    /netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/custom/counts_STAR_80_EG/${g}/new_25_lines_22_12/B73.${g}.${tr}.q255.PF.GT.RN.csv
-
 
 2) A file containing a subset of the previous one, which only contains SNPs that were classified as MOA footprint polymorphisms (MPs), i.e. those SNPs located in MOA-peaks and a coverage of >7 RPGC for at least one allele, as well as at least 1 read of both alleles.
 
     Here, we will use the following as name for these files: ${g}_allMPs.tsv
 
-@Julia: Please check that this is these files: /netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/custom/counts_STAR_80_EG/biases_SNPs/q255_new_12_22/${g}.WW.q255.bino.fdr.CPM7.txt
-
 
 3) A file that is a further subset of the previous (2nd) one, which only contains those MPs, where binding is significantly biased towards one allele, i.e. allele-specific MOA footprint polymorphisms (AMPs). This is the files created as the final output of the allele-specific MOA-analysis described [here](https://github.com/jengelhorn/AS-MOA). 
 
     Here, we will use the following as name for these files: ${g}_AMPs.tsv
-
-@Julia: Please check that this is these files: /netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/custom/counts_STAR_80_EG/biases_SNPs/q255_new_12_22/AFPs_new_0724/${g}.AFPs.cleaned.WW.csv
 
 
 <br/><br/>
@@ -280,5 +272,25 @@ New columns are: "NAM_line", "total_AFP_count", "41bp_hyperbindCount", "to_hyper
 "to_hypo_percent" ratio of "to_hypo_count" out of all hypermethylated-allele-bound sites for the 41 bp window;
 
 "to_NoDM_percent" ratio of "to_NoDM_count" out of all hypermethylated-allele-bound sites for the 41 bp window;
+
+
+<br/><br/>
+
+To plot the results, run:
+```{bash}
+Rscript --vanilla plot_hyperbinding_AMPs_diffWindows.R
+```
+
+<br/><br/>
+<br/><br/>
+
+
+2. Create a circos plot to visualise genome-wide bQTL, selective sweeps and GWAS results
+
+The three input files are in BED file format with the fourth column being the value that is plotted. In case of the bQTL it is the -log10(p-value).
+
+To create the plot, run: create_circos_plot.SNPsAndIndels.R
+
+
 
 
