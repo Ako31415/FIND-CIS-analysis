@@ -70,10 +70,14 @@ Variables to be set in 2-split.sh:
 Output: Splits the integrated MOA, methylation, and read depth data (depreciated) by chromosome in a separate folder. Since the association is tested locally for each input polymorphism (SNP or INDEL) in the genotype data, chromosomes can split to allow paralleled processing.
 
 ## Step 3: Local association mapping
-
- Script: 3-parallel_mapping_server_Value.LM.sh
  
-This is the batch script to run the linear regression model to provide raw pvalues (not adjusted for multiple testing) for associations between the haplotype-specific MOA and/or DNA methylation differences at each polymorphism (SNPs and/or INDELs) provided in the input. Two options are provided to either only test associations with genotype only (only SNPs/INDELs are tested, script_Mety_singleFactor_inLM_Model_3.jl) or also for each methylation type (SNPs/INDELs, CG, CHG, CHH; script_error_removed_methlyation_pvalue_issue_fixed_MMtoLM.jl). We note that the script is only provided for "NPNRtoValue” in the output folder and should be adapted for “NPNRtoNA” if needed.
+These are the batch scripts to run the linear regression model to provide raw pvalues (not adjusted for multiple testing) for associations between the haplotype-specific MOA and/or DNA methylation differences at each polymorphism (SNPs and/or INDELs) provided in the input. Two options are provided to either only test associations with genotype only (only SNPs/INDELs are tested, script_Mety_singleFactor_inLM_Model_3.jl) or also for each methylation type (SNPs/INDELs, CG, CHG, CHH; script_error_removed_methlyation_pvalue_issue_fixed_MMtoLM.jl). We note that the script is only provided for "NPNRtoValue” in the output folder and should be adapted for “NPNRtoNA” if needed.
+
+### For genotype association
+
+Script: 3-parallel_mapping_server_Value.LM.sh
+Associated script: 3-LM.jl
+
 
 Input:  /splitted/${k}-${l}_ratio_${i}_file.csv
 
