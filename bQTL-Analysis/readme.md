@@ -3,6 +3,7 @@ This pipeline describes the steps to identify binging quantitative trait loci (b
 
 ## Special requirements
 - julia (the scripts provided here were tested on version 1.8.1)
+- R 4.4.1
 
 ## Input data
 
@@ -85,9 +86,11 @@ aom= “/splitted/${k}-MOA_peak_ratio_${i}_file.csv" (path to chromosome split h
 
 ### For genotype association
 Script: 3-parallel_mapping_server_Value.LM_geno.sh
+
 Associated script: 3-LM_geno.jl
 ### For methylation association
 Script: 3-parallel_mapping_server_Value.LM_methylation.sh
+
 Associated script: 3-LM_methylation.jl
 
 Variables to change in each script:
