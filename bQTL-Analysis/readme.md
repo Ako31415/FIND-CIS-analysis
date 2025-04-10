@@ -73,11 +73,6 @@ Output: Splits the integrated MOA, methylation, and read depth data (depreciated
  
 These are the batch scripts to run the linear regression model to provide raw pvalues (not adjusted for multiple testing) for associations between the haplotype-specific MOA and/or DNA methylation differences at each polymorphism (SNPs and/or INDELs) provided in the input. Two options are provided to either only test associations with genotype only (only SNPs/INDELs are tested, script_Mety_singleFactor_inLM_Model_3.jl) or also for each methylation type (SNPs/INDELs, CG, CHG, CHH; script_error_removed_methlyation_pvalue_issue_fixed_MMtoLM.jl). We note that the script is only provided for "NPNRtoValue” in the output folder and should be adapted for “NPNRtoNA” if needed.
 
-### For genotype association
-
-Script: 3-parallel_mapping_server_Value.LM.sh
-Associated script: 3-LM.jl
-
 
 Input:  /splitted/${k}-${l}_ratio_${i}_file.csv
 
@@ -88,10 +83,25 @@ aom= “/splitted/${k}-MOA_peak_ratio_${i}_file.csv" (path to chromosome split h
 	rd= “/splitted/${k}-ReadDepth_ratio_${i}_file.csv" (path to chromosome split read depth input data, depreciated)
 	oneg= 	“/GenotypeData_${k}/genotypes_divided_2FPs_${i}.csv" (path to condition-dependent genotype (SNPs/INDELs) input data; its condition-dependent as only variants found in at significant MOA peak in at least 1 haplotype were tested) 
 
-Associated scripts: script_error_removed_methlyation_pvalue_issue_fixed_MMtoLM.jl or script_Mety_singleFactor_inLM_Model_3.jl
+### For genotype association
+Script:
+Associated script:script_Mety_singleFactor_inLM_Model_3.jl
+### For methylation association
+Script: 3-parallel_mapping_server_Value.LM.sh
+Associated script: 3-LM.jl
+
+Variables to change in each script:
+- PATH_TO_DATA: same as before
+- PATH_TO_JULIA
+- k: the conditions, in our case WW and DS
+
+Input files are the output from the previous scripts:
+aom="PATH_TO_DATA/BindingFrequency/NPNRtoValue/splitted/${k}-MOA_peak_ratio_${i}_file.csv" 
+rd="PATH_TO_DATA/BindingFrequency/NPNRtoValue/splitted/${k}-ReadDepth_ratio_${i}_file.csv" 
+oneg="PATH_TO_DATA/GenotypeData_${k}/genotypes_divided_2FPs_${i}.csv"
 
 Outputs: 
-One file per chromosome for the genotype association (../Results/NPNRtoValue/snponly folder) and methylation assocaition (/Results/NPNRtoValue/LM folder). 
+One file per chromosome for the genotype association (PATH_TO_DATA/Results/NPNRtoValue/snponly folder) and methylation assocaition (/Results/NPNRtoValue/LM folder). 
 Methylation association files contain the following columns:
 
 MOA_window (the position of the variant analysed),log10ProbCHGsingle (log 10 of the p-value for CHG methylation), log10ProbCGsingle (log 10 of the p-value for CG methylation),log10ProbCHHsingle  (log 10 of the p-value for CHH methylation),log10ProbCGcombi (log 10 of the p-value  for combination CG & genotype, depreciated),log10ProbCHGcombi (log 10 of the p-value  for combination CHG & genotype, depreciated),log10ProbCHHcombi (log 10 of the p-value  for combination CHH & genotype, depreciated),ExpVarianceCHG (Variance explained CHG),ExpVarianceCG  (Variance explained CG),ExpVarianceCHH  (Variance explained CHH),ExpVariacneMix  (Variance explained all, depreciated)
