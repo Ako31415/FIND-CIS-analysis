@@ -72,17 +72,7 @@ Output: Splits the integrated MOA, methylation, and read depth data (depreciated
 
 ## Step 3: Local association mapping
  
-These are the batch scripts to run the linear regression model to provide raw pvalues (not adjusted for multiple testing) for associations between the haplotype-specific MOA and/or DNA methylation differences at each polymorphism (SNPs and/or INDELs) provided in the input. Two options are provided to either only test associations with genotype only (only SNPs/INDELs are tested, script_Mety_singleFactor_inLM_Model_3.jl) or also for each methylation type (SNPs/INDELs, CG, CHG, CHH; script_error_removed_methlyation_pvalue_issue_fixed_MMtoLM.jl). We note that the script is only provided for "NPNRtoValue” in the output folder and should be adapted for “NPNRtoNA” if needed.
-
-
-Input:  /splitted/${k}-${l}_ratio_${i}_file.csv
-
-Variables: 	k = “WW” “DS” (environmental condition e.g., WW (well-watered) or DS (drought))
-i = {1..n} chromosome ID 
-
-aom= “/splitted/${k}-MOA_peak_ratio_${i}_file.csv" (path to chromosome split haplotype MOA input data) 
-	rd= “/splitted/${k}-ReadDepth_ratio_${i}_file.csv" (path to chromosome split read depth input data, depreciated)
-	oneg= 	“/GenotypeData_${k}/genotypes_divided_2FPs_${i}.csv" (path to condition-dependent genotype (SNPs/INDELs) input data; its condition-dependent as only variants found in at significant MOA peak in at least 1 haplotype were tested) 
+These are the scripts for batch submission to run the linear regression model to provide raw pvalues (not adjusted for multiple testing) for associations between the haplotype-specific MOA and/or DNA methylation differences at each polymorphism (SNPs and/or INDELs) provided in the input. Two options are provided to either only test associations with genotype only (only SNPs/INDELs are tested, script_Mety_singleFactor_inLM_Model_3.jl) or also for each methylation type (SNPs/INDELs, CG, CHG, CHH; script_error_removed_methlyation_pvalue_issue_fixed_MMtoLM.jl). We note that the script is only provided for "NPNRtoValue” in the output folder and should be adapted for “NPNRtoNA” if needed.
 
 ### For genotype association
 Script: 3-parallel_mapping_server_Value.LM_geno.sh
@@ -93,15 +83,21 @@ Script: 3-parallel_mapping_server_Value.LM_methylation.sh
 
 Associated script: 3-LM_methylation.jl
 
-Variables to change in each script:
+Variables to change in each bash script:
 - PATH_TO_DATA: same as before
 - PATH_TO_JULIA
 - k: the conditions, in our case WW and DS
+- 1 = {1..n} chromosome ID, here 10 chromosomes for maize
 
+Variables to be changed in the julia scripts:
+- PATH_TO_DATA: same as before
+  
 Input files are the output from the previous scripts:
-aom="PATH_TO_DATA/BindingFrequency/NPNRtoValue/splitted/${k}-MOA_peak_ratio_${i}_file.csv" 
-rd="PATH_TO_DATA/BindingFrequency/NPNRtoValue/splitted/${k}-ReadDepth_ratio_${i}_file.csv" 
-oneg="PATH_TO_DATA/GenotypeData_${k}/genotypes_divided_2FPs_${i}.csv"
+aom = "PATH_TO_DATA/BindingFrequency/NPNRtoValue/splitted/${k}-MOA_peak_ratio_${i}_file.csv" 
+
+rd = "PATH_TO_DATA/BindingFrequency/NPNRtoValue/splitted/${k}-ReadDepth_ratio_${i}_file.csv" 
+
+oneg = "PATH_TO_DATA/GenotypeData_${k}/genotypes_divided_2FPs_${i}.csv"
 
 Outputs: 
 One file per chromosome for the genotype association (PATH_TO_DATA/Results/NPNRtoValue/snponly folder) and methylation assocaition (/Results/NPNRtoValue/LM folder). 
