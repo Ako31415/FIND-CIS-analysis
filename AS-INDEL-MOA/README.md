@@ -56,6 +56,71 @@ Create a BED file with only INDELs from the VCF files created in the previous st
 for g in [NAMparents...]; do gawk -v OFS='\t' '{if(!($0 ~ "^#")){if((length($4)>1 && length($4)<51) || (length($5)>1 && length($5)<51)){print $1, $2-1, $2+length($4), $1":"$2":"$4":"$5}}}' ${g}_againstB73.vcf > ${g}_againstB73.INDELs.bed; done
 ```
 
+Biallelic sites were determined as sites where every inbred line with the insertion allele had the same insertion sequence and position. The other allele remaining then was a share deletion allele.
+
+Create one file with the sequences of INDELs as 4th and 5th column:
+
+```{bash}
+for g in [NAMparents...]; do gawk -v OFS='\t' '{split($4, a, ":"); print $1, $2, $3, a[3]":"a[4]}' ${g}_againstB73.INDELs.bed >> All_againstB73.INDELs.seqs.tsv; done
+```
+
+
+Use bash sort and uniq -c to find out how often an INDEL occurs between B73 and each of the different NAM inbred lines. If an INDEL varies in sequence at a position there will be two separate entries.
+
+```{bash}
+sort All_againstB73.INDELs.seqs.tsv | uniq -c | gawk -v OFS='\t' '{print $1, $2, $3, $4, $5}' > All_againstB73.INDELs.seqs.uniq.tsv
+```
+
+Remove the count column in order to run bedtools intersect:
+
+```{bash}
+gawk -v OFS='\t' '{print $2, $3, $4, $5}' All_againstB73.INDELs.seqs.uniq.tsv | sort -k1,1 -k2,2n > All_againstB73.INDELs.seqs.uniq.noCounts.bed
+```
+
+
+Run bedtools intersect in order to identify INDELs overlapping in their B73 coordinates to exclude them:
+
+```{bash}
+bedtools intersect -a All_againstB73.INDELs.seqs.uniq.noCounts.bed -b All_againstB73.INDELs.seqs.uniq.noCounts.bed -wa -wb -loj > All_againstB73.INDELs.seqs.uniq.noCounts.intersect.tsv
+```
+
+
+Only keep entries that occur only once as overlapping with themselves and remove the rest: 
+
+```{bash}
+gawk -v OFS='\t' 'BEGIN{vars["-"]="-"; dups["-"]="-"}{if($1":"$2":"$3":"$4 in vars){ dups[$1":"$2":"$3":"$4]=$1":"$2":"$3":"$4 } else if($1":"$2":"$3":"$4==$5":"$6":"$7":"$8 || $5=="."){ vars[$1":"$2":"$3":"$4]=$1":"$2":"$3":"$4 } else { vars[$1":"$2":"$3":"$4]=$1":"$2":"$3":"$4 }} END{ for(i in vars){ if(!(i in dups)){ split(vars[i], a, ":"); print a[1], a[2], a[3], a[4]":"a[5] }}}' All_againstB73.INDELs.seqs.uniq.noCounts.intersect.tsv | sort -k1,1 -k2,2n > All_againstB73.INDELs.seqs.biallelic.bed
+```
+
+Take the counts of how often the INDELs occur in the different hybrids and add them to the biallic file in order to filter for a minimum of 2 hybrids the variants occur in:
+
+```{bash}
+gawk -v OFS='\t' '{if(NR==FNR){ counts[$2"_"$3"_"$4"_"$5]=$1; next} if($1"_"$2"_"$3"_"$4 in counts){ print $0, counts[$1"_"$2"_"$3"_"$4] }}' All_againstB73.INDELs.seqs.uniq.bed All_againstB73.INDELs.seqs.biallelic.bed | sort -k1,1 -k2,2n > All_againstB73.INDELs.seqs.biallelic.counts.tsv
+```
+
+
+Filter out positions that only occur in 1 hybrid:
+
+```{bash}
+gawk -v OFS='\t' '{if($5>1){ print $1, $2, $3, $4"_"$5 }}' All_againstB73.INDELs.seqs.biallelic.counts.tsv > All_againstB73.INDELs.seqs.biallelic.counts.min2hyb.bed
+```
+
+Create BED files with three positions before and after the INDEL. This is so that there are some bases to compare coverage for the deletion allele. Start and Stop coordinates are split into 4 separate rows to make liftover easier:
+
+```{bash}
+gawk -v OFS='\t' '{print $1, $2-2, $2-1, $4"_"$1"_"$2"_"$3"_St1\n" $1, $2, $2+1, $4"_"$1"_"$2"_"$3"_St2\n" $1, $3-1, $3, $4"_"$1"_"$2"_"$3"_Sp1\n" $1, $3+1, $3+2, $4"_"$1"_"$2"_"$3"_Sp2"}' All_againstB73.INDELs.seqs.biallelic.counts.min2hyb.bed > All_againstB73.INDELs.seqs.biallelic.counts.min2hyb.pm3bp.bed
+```
+
+
+Lift over files with start and stop positions of the selected INDELs to each NAM parent genome using CrossMap (version 0.7.0). The chain files created in step 2 are used.
+
+```{bash}
+for g in [NAMparents...]; do CrossMap bed --chromid a --unmap-file ${g}_againstB73.seqs.biallelic.pm3bp.unmapped.bed ${g}_againstB73.chain All_againstB73.INDELs.seqs.biallelic.counts.min2hyb.pm3bp.bed ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.bed; done
+```
+
+
+
+
+
 
 
 
