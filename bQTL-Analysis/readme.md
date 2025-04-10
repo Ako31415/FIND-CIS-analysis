@@ -47,7 +47,12 @@ Output: $t-MOA_peak_ratio.csv, $t-CG_ratio.csv, $t-CHG_ratio.csv, $t-CHH_ratio.c
 ## Optional steps for no mehtylation data lines:
 Script: 1-zPush_A619_into_ratio.jl ; 1-zPush_A619_into_ReadDepth.jl 
 
-Output: WW-MOA_peak_ratio.csv, WW -CG_ratio.csv, WW -CHG_ratio.csv, WW -CHH_ratio.csv, WW -ReadDepth_ratio.csv (depreciated value for read depth at loci), DS-MOA_peak_ratio.csv, DS -CG_ratio.csv, DS -CHG_ratio.csv, DS -CHH_ratio.csv, DS -ReadDepth_ratio.csv (depreciated value for read depth at loci)
+Variables to be set in 1-zPush_A619_into_ratio.jl and 1-zPush_A619_into_ReadDepth.jl
+- PATH_TO_A619_DATA_WW/A619_WW.csv: the location of the file containing the A619 BF and read depth data for WW, same needs to be done for drought
+- PATH_TO_DATA: the same path as used before to prepare the data with methylation for the other lines
+- leave "keep" in if it was used in the previous step, otherwise change to "not_keep"
+
+Output: same files as for before but with A619 data added
 
 These scripts will integrate the genotype data (SNP and/or INDEL values) with the relative MOA peak (condition dependent output for well-watered and drought data separated) for A619 while adding “NA” for the missing methylation data. This script is only needed for lines with missing input data such as methylation. 
 
