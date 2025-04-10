@@ -2,10 +2,10 @@
 
 # run the julia code for all combinations of files. 
 
-for t in WW DS #WW #
+for t in WW DS #add names of folders containing files for different conditions here 
 do 
 
-v1="/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/$t/"
+v1="PATH_TO_DATA/$t/"
 for v3 in "keep" #"keep_not" #
 do
 
@@ -23,12 +23,12 @@ echo "$j $l $t"
 	else loc="NPNRtoNA"
 	fi
 
-	if [ ! -d "/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/BindingFrequency/$loc/" ]
-	then mkdir -p "/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/BindingFrequency/$loc/"
+	if [ ! -d "PATH_TO_DATA/BindingFrequency/$loc/" ]
+	then mkdir -p "PATH_TO_DATA/BindingFrequency/$loc/"
 	fi
 
 
- /netscratch/dep_psl/grp_frommer/Thomas/bin/julia/bin/julia -t 80 /biodata/dep_psl/grp_frommer/MOA_raw/Scripts/MichaelS/25_Lines/NG_revision/1-moa_windows_perpare.jl $j $t $l 
+ PATH_TO_JULIA/bin/julia -t 80 1-moa_windows_perpare.jl $j $t $l 
 
 done
 done
