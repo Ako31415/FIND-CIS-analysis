@@ -122,9 +122,12 @@ Merge start and stop positions accordingly after lift over, if all 4 coordinates
 ```{bash}
 for g in [NAMparents...]; do echo "${g}"; gawk -v OFS='\t' '{split($4, a, "_"); chr[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$1; if(a[6]=="St1"){ st1[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else if(a[6]=="St2"){ st2[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else if(a[6]=="Sp1"){ sp1[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else if(a[6]=="Sp2"){ sp2[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 }} END { for(i in st1){ if((i in st2) && (i in sp1) && (i in sp2)) { if(st1[i]<st2[i]){ print chr[i], st1[i], st2[i], sp1[i], sp2[i], i } else if(st1[i]>st2[i]){ print chr[i], sp2[i], sp1[i], st2[i], st1[i], i }}}}' ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.bed | sort -k1,1 -k2,2n > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.bed; done
 ```
-(If there is an insertion, take the coordinates 
-for g in B97 CML103 CML247 CML277 CML333 M37W Mo18W Ms71 NC358 Oh43 Tx303 CML69 HP301 Ki11 Ki3 Ky21 M162W CML322 IL14H Oh7b P39 A188 A619 Mo17 W22; do echo "${g}"; gawk -v OFS='\t' '{ if(($4-$3)==1){ print $1, $2-1, $5, $6"_del" } else if(($4-$3)>1){ print $1, $3, $4-1, $6"_ins" } }' ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.bed | sort -k1,1 -k2,2n > ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed; done
 
+(If there is an insertion, take the coordinates 
+
+```{bash}
+for g in B97 CML103 CML247 CML277 CML333 M37W Mo18W Ms71 NC358 Oh43 Tx303 CML69 HP301 Ki11 Ki3 Ky21 M162W CML322 IL14H Oh7b P39 A188 A619 Mo17 W22; do echo "${g}"; gawk -v OFS='\t' '{ if(($4-$3)==1){ print $1, $2-1, $5, $6"_del" } else if(($4-$3)>1){ print $1, $3, $4-1, $6"_ins" } }' ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.bed | sort -k1,1 -k2,2n > ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed; done
+```
 
 
 
