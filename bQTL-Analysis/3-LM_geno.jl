@@ -7,18 +7,12 @@ con = ARGS[3]
 rd = ARGS[4] #read depth to load
 oneg = ARGS[5]  #genotype to load
 
-# path="/work/Raid_Backup/BackUp_Data_drive/MOA_MPI/Script_eval_thomas/NG_revision/" 
-path="/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision"
-#  con="WW"
-#  me=1
+
+path="PATH_TO_DATA"
 
 meth = ["$path/BindingFrequency/NPNRtoValue/splitted/$(con)-CG_ratio_$(me)_file.csv", 
 "$path/BindingFrequency/NPNRtoValue/splitted/$(con)-CHG_ratio_$(me)_file.csv", 
 "$path/BindingFrequency/NPNRtoValue/splitted/$(con)-CHH_ratio_$(me)_file.csv"]
-
-# rd = "$path/BindingFrequency/NPNRtoValue/splitted/WW-ReadDepth_ratio_1_file.csv"
-# aom = "$path/BindingFrequency/NPNRtoValue/splitted/WW-MOA_peak_ratio_1_file.csv"
-# oneg = "$path/GenotypeData_WW/genotypes_divided_2FPs_1.csv" #"/Data/michael/MOA_MPI/test/GenotypeData/genotypes_divided_10.csv"
 
 println("list files")
 println("$(aom), $(oneg), $(meth)")
@@ -417,7 +411,7 @@ RD = leftjoin(moa[!,[:ID]], RD, on=:ID)
 # specify folder
 l1 = split(split(aom, "/")[length(split(aom, "/"))], "MOA")[1] 
 l2 = string(split(aom, "_")[9])# chr
-disk = "/netscratch/dep_psl/grp_frommer/Thomas/Results/HybMoa_0819_WWvsDS/bQTLs_25/NG_revision/Results/NPNRtoValue/snponly/$con/"
+disk = "PATH_TO_DATA/NG_revision/Results/NPNRtoValue/snponly/$con/"
 
 for m in string.(collect(keys(Results)))
                                 LOC = string(disk, con,"-" ,"MOA_", m, "_", me, "_", ".csv")
