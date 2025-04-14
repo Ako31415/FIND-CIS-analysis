@@ -32,7 +32,7 @@ The input files for the SNPs were the following:
 <br/><br/>
 
 
-For the methylation a bedgraph file is needed for each parental line (B73 and each of the NAM parents) and sequence context.
+For the methylation, a bedgraph file is needed for each parental line (B73 and each of the NAM parents) and sequence context.
 
 Here, we will use the following name for these files: ${g}\_methylation\_\${m}.bedgraph
 
@@ -226,7 +226,7 @@ Rscript --vanilla create_bindingBiasConsistency_plots.R
 
 1. Create plots that compare methylation in 41bp and 11bp window with regard to those who show binding to the hypermethylated allele
 
-Repeat the steps described above with slight alteration to create files listing the mean methylation over +/-5 bp windows (11 bp total), instead of +/-20 bp windows (42 bp total).
+Repeat the steps described above with slight alteration to create files listing the mean methylation over +/-5 bp windows (11 bp total), instead of +/-20 bp windows (41 bp total).
 
 Files here will be called (only CG context): ${g}.WW.q255.11bp.CG.noNP.GT1.justMPs.tsv
 
