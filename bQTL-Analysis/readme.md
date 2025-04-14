@@ -1,4 +1,7 @@
 # bQTL-Analysis
+
+*Code was written by Michael Schneider with support by Thomas Hartwig*
+
 This pipeline describes the steps to identify binding quantitative trait loci (bQTL) from transcription factor (TF) binding data in a population of F1 hybrids via local association mapping. Through the addition of parental DNA methylation data, this pipeline allows for identification of bQTL based on genotype, methylation or both. Linear modelling is used to identify significant associations of TF binding frequencies (BF) in the F1 hybrids (Binding maternal allele/(Bindinding maternal allele + Binding paternal allele)) with either the genotype or the methylation state at SNP or INDEL positions. The scripts provided here are an example application for a population of maize F1 hybrids with a common mother (B73) and 25 diverse paternal lines for which we generated TF binding data via MOA-seq in well-watered and drought conditions.
 
 ## Special requirements
