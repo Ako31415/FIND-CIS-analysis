@@ -122,23 +122,55 @@ Merge start and stop positions accordingly after lift over, if all 4 coordinates
 ```{bash}
 for g in [NAMparents...]; do echo "${g}"; gawk -v OFS='\t' '{split($4, a, "_"); chr[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$1; if(a[6]=="St1"){ st1[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else if(a[6]=="St2"){ st2[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else if(a[6]=="Sp1"){ sp1[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else if(a[6]=="Sp2"){ sp2[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 }} END { for(i in st1){ if((i in st2) && (i in sp1) && (i in sp2)) { if(st1[i]<st2[i]){ print chr[i], st1[i], st2[i], sp1[i], sp2[i], i } else if(st1[i]>st2[i]){ print chr[i], sp2[i], sp1[i], st2[i], st1[i], i }}}}' ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.bed | sort -k1,1 -k2,2n > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.bed; done
 ```
-
-(If there is an insertion, take the coordinates 
-
+(NOTE: The above command is left unaltered for sake of documentation, but does not account for potential multimapping of coordinates. If you would like to repeat this analysis, use the command below instead. In our case, with and without the extra filters did not make a difference.)
 ```{bash}
-for g in B97 CML103 CML247 CML277 CML333 M37W Mo18W Ms71 NC358 Oh43 Tx303 CML69 HP301 Ki11 Ki3 Ky21 M162W CML322 IL14H Oh7b P39 A188 A619 Mo17 W22; do echo "${g}"; gawk -v OFS='\t' '{ if(($4-$3)==1){ print $1, $2-1, $5, $6"_del" } else if(($4-$3)>1){ print $1, $3, $4-1, $6"_ins" } }' ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.bed | sort -k1,1 -k2,2n > ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed; done
+for g in [NAMparents...]; do echo "${g}"; gawk -v OFS='\t' '{split($4, a, "_"); chr[$4]=$1; if(a[6]=="St1"){ if(!(a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] in st1)){ st1[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else { multimapped[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] } } else if(a[6]=="St2"){ if(!(a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] in st2)){ st2[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else { multimapped[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] } } else if(a[6]=="Sp1"){ if(!(a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] in sp1)){ sp1[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else { multimapped[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] } } else if(a[6]=="Sp2"){ if(!(a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] in sp2)){ sp2[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=$3 } else { multimapped[a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5]]=a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] } }} END { for(i in st1){ if((i in st2) && (i in sp1) && (i in sp2)) { if(!(i in multimapped)){ if((chr[i"_St1"]==chr[i"_St2"]) && (chr[i"_St1"]==chr[i"_Sp1"]) && (chr[i"_St1"]==chr[i"_Sp2"])){ if(st1[i]<st2[i]){ print chr[i"_St1"], st1[i], st2[i], sp1[i], sp2[i], i } else if(st1[i]>st2[i]){ print chr[i"_St1"], sp2[i], sp1[i], st2[i], st1[i], i }}}}}}' ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.bed | sort -k1,1 -k2,2n > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged_multimapFIXed.bed; done
 ```
 
 
+If genome carries the insertion allele, take the coordinates of the insertion itself. If genome carries the deletion allele, get +/-3 bp around the deletion site.:
+
+```{bash}
+for g in [NAMparents...]; do echo "${g}"; gawk -v OFS='\t' '{ if(($4-$3)==1){ print $1, $2-1, $5, $6"_del" } else if(($4-$3)>1){ print $1, $3, $4-1, $6"_ins" } }' ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.bed | sort -k1,1 -k2,2n > ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed; done
+```
+
+Check if these sites overlap in the NAM genomes coordinates (and therefore would not be biallelic):
+
+```{bash}
+for g in [NAMparents...]; do echo "${g}"; bedtools intersect -a ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed -b ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed -wo > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.bed; done
+```
+
+From the intersected file, get those that need to be removed in an extra file:
+
+```{bash}
+for g in [NAMparents...]; do gawk -v OFS='\t' '{if(!($4==$8)){split($4, a, "_"); split($8, b, "_"); print a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] "\n" b[1]"_"b[2]"_"b[3]"_"b[4]"_"b[5] }}' ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.bed | sort | uniq > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.bed; done
+```
+
+Get list of those, where hybrid shows NAM allele, to check if still >=2 hybrids share this allele:
+
+```{bash}
+for g in [NAMparents...]; do gawk -v OFS='\t' '{if(!($4==$8)){print $4 "\n" $8}}' ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.bed | sort | uniq | gawk '{split($1, a, ":|_"); if( ((length(a[2])==1) && (a[7]=="del")) || ((length(a[2])>1) && (a[7]=="ins")) ){ print a[1]":"a[2]"_"a[3]"_"a[4]"_"a[5]"_"a[6] }}' > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed; done
+
+cat B97_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed CML103_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed CML247_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed CML277_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed CML333_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed M37W_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Mo18W_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Ms71_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed NC358_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Oh43_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Tx303_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed CML69_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed HP301_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Ki11_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Ki3_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Ky21_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed M162W_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed CML322_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed IL14H_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Oh7b_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed P39_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed A188_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed A619_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed Mo17_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed W22_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed | sort | uniq -c > All.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed
 
 
+gawk -v OFS='\t' '{split($2, a, "_"); if((a[2]-$1)<2){ print $2 }}' All.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed > All.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.toRemove.bed
+```
+
+Create one file for every hybrid with those that have to be removed:
+
+```{bash}
+for g in [NAMparents...]; do cat All.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.toRemove.bed ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.bed > ${g}_againstB73.seqs.biallelic.pm3bp.toRemove.bed; done
+```
 
 
+Remove sites from the list of every hybrid; create one file for each coordinate system:
 
+```{bash}
+for g in [NAMparents...]; do gawk -v OFS='\t' '{if(NR==FNR){rem[$1]=$1; next} split($4, ids, "_"); if(!(ids[1]"_"ids[2]"_"ids[3]"_"ids[4]"_"ids[5] in rem)){ print $1, $2, $3, ids[1]"_"ids[2]"_"ids[3]"_"ids[4]"_"ids[5] }}' ${g}_againstB73.seqs.biallelic.pm3bp.toRemove.bed ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed | sort -k1,1 -k2,2n > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.filtered.${g}coords.bed; done
 
-
-
-
+for g in [NAMparents...]; do gawk -v OFS='\t' '{split($4, a, ":|_"); if(length(a[1])==1){ print a[4], a[5]-2, a[6]+2, $4} else if(length(a[1])>1){ print a[4], a[5]+1, a[6]-1, $4}}' ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.filtered.${g}coords.bed | sort -k1,1 -k2,2n > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.filtered.B73coords.bed; done
+```
 
 
 
