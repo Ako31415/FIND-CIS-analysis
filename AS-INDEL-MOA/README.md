@@ -197,6 +197,63 @@ Only using the scripts which are adapted to INDELs and provided here.
 
 ## Step 5: Calculate methylation at/around INDELs
 
+This takes the output of the previous step and performes the steps similarly to the analysis with SNPs (see ../methylationAnalysis).
+
+<br/><br/>
+
+Create BED files from the output of the last step (B73.${g}.${tr}.q255.PF.GT.RN.csv):
+
+```{bash}
+for g in [NAMparents...]; do for tr in WW DS; do echo "${g}_${tr}"; gawk -v OFS='\t' '{if(!($7=="het")){ print $1, $2-1, $2+length($3), $11, $1":"$2";"$3";"$4";"$5";"$6 }}' B73.${g}.${tr}.q255.PF.GT.RN.csv | sort -k1,1 -k2,2n > ${g}.${tr}.q255.B73coord.bed; done; done
+
+for g in [NAMparents...]; do for tr in WW DS; do echo "${g}_${tr}"; gawk -v OFS='\t' '{if(!($7=="het")){ split($5, namcoord, ":"); if($6=="0/0"){ print namcoord[1], namcoord[2]-1, namcoord[2]+length($3), $11, $1":"$2";"$3";"$4";"$5";"$6 } else if($6=="1/1"){ print namcoord[1], namcoord[2]-1, namcoord[2]+length($4), $11, $1":"$2";"$3";"$4";"$5";"$6 }}}' B73.${g}.${tr}.q255.PF.GT.RN.csv | sort -k1,1 -k2,2n > ${g}.${tr}.q255.${g}coord.bed; done; done
+```
+The new colums here are: "Chr", "Start", "Stop", "BF", "REF;ALT;NAMID;GT"
+Where "Chr" is the B73 chromosome, "Start" is the B73 start position, "Stop" is the B73 stop position, "BF" is the binding frequency, "REF" stands for the reference/B73 allele's sequence, ALT stands for the alternative/NAM-parent allele's sequence, NAMID are the chromosome and stop coordinate in the coordinate system of the NAM parent, and "GT" stands for genotype, which can be 0/0 (indicating homozygous for the reference allele), or 1/1 (indicating heterozygosity).
+
+
+<br/><br/>
+
+Create BED files with windows around the sites, for which to calculate the average methylation level. The windows are created by adding 20 bp up- and downstream of the site, for both the insertion and the deletion allele.
+
+```{bash}
+for g in [NAMparents...]; do for tr in WW DS; do echo "${g}_${tr}"; gawk -v OFS='\t' '{if($2>20){print $1,$2-20,$3+19,$4,$1":"$3";"$5} else {print $1,0,$3+19,$4,$1":"$3";"$5}}' ${g}.${tr}.q255.B73coord.bed | sortBed -g ref_B73${g}.fasta.size.new.sort.txt > ${g}.${tr}.q255.B73coord.41bp.bed; done; done
+
+for g in [NAMparents...]; do for tr in WW DS; do echo "${g}_${tr}"; gawk -v OFS='\t' '{if($2>20){print $1,$2-20,$3+19,$4,$1":"$3";"$5} else {print $1,0,$3+19,$4,$1":"$3";"$5}}' ${g}.${tr}.q255.${g}coord.bed > ${g}.${tr}.q255.${g}coord.41bp.bed; done; done
+```
+
+
+<br/><br/>
+
+Calculate the average methylation over the given windows (here only the CG context is shown as an example):
+
+
+```{bash}
+for g in [NAMparents...]; do for tr in WW DS; do echo "${g}_${tr}"; intersectBed -a ${g}.${tr}.q255.B73coord.41bp.bed -b B73_CG.diploid.bedgraph -wao | gawk -v OFS='\t' '{if(NR==1){ if($9=="."){CHR=$1;St=$2;Sp=$3;BF=$4;ID=$5;n=1;AddVal=0} else {CHR=$1;St=$2;Sp=$3;BF=$4;ID=$5;n=$10;AddVal=$9*$10} } else { if($5==ID){n=n+$10;AddVal=AddVal+($9*$10)} else {print CHR,St,Sp,BF,ID,AddVal/n; if($9=="."){CHR=$1;St=$2;Sp=$3;BF=$4;ID=$5;n=1;AddVal=0} else {CHR=$1;St=$2;Sp=$3;BF=$4;ID=$5;n=$10;AddVal=$9*$10}}}} END{print CHR,St,Sp,BF,ID,AddVal/n}' > ${g}.${tr}.q255.B73coord.41bp.CG.bed; done; done
+
+for g in [NAMparents...]; do for tr in WW DS; do echo "${g}_${tr}"; intersectBed -a ${g}.${tr}.q255.${g}coord.41bp.bed -b ${g}_CG.diploid.bedgraph -wao | gawk -v OFS='\t' '{if(NR==1){ if($9=="."){CHR=$1;St=$2;Sp=$3;BF=$4;ID=$5;n=1;AddVal=0} else {CHR=$1;St=$2;Sp=$3;BF=$4;ID=$5;n=$10;AddVal=$9*$10} } else { if($5==ID){n=n+$10;AddVal=AddVal+($9*$10)} else {print CHR,St,Sp,BF,ID,AddVal/n; if($9=="."){CHR=$1;St=$2;Sp=$3;BF=$4;ID=$5;n=1;AddVal=0} else {CHR=$1;St=$2;Sp=$3;BF=$4;ID=$5;n=$10;AddVal=$9*$10}}}} END{print CHR,St,Sp,BF,ID,AddVal/n}' > ${g}.${tr}.q255.${g}coord.41bp.CG.bed; done; done
+```
+
+
+<br/><br/>
+
+Join methylation of both the B73 and the NAM allele into one file
+
+The new columns are: "B73_chr", "B73_pos", "B73_allele", "NAM_allele", "NAM_ID", "GT", "AMP", "BF", "B73_meth", "NAM_meth", "meth_diff"
+
+where "B73_chr", "B73_pos" are chromosome and stop position
+"B73_allele" and "NAM_allele" are the sequences of each allele
+"NAM_ID" is the chromosome and stop position in non-B73 parent coordinates
+"GT" is the genotype: 0/0 is homozygous B73 and 1/1 is heterozygous
+"AMP" is either equal to 'AMP' if MP is classified as an AMP or equal 'MP' if not classified as AMP
+"BF" is the binding frequency
+"B73_meth", "NAM_meth" are the calculated methylation over the given window as it is in the B73 or the non-B73 parent
+"meth_diff" is the difference in methylation between the parents over this window, i.e. "B73_meth" - "NAM_meth"
+
+```{bash}
+for g in [NAMparents...]; do for tr in WW DS; do echo "${g}_${tr}"; gawk -v OFS='\t' -v g=$g '{if(NR==FNR) {split($5, a, ";"); B73[a[2]]=$6; next} split($5, b, ";|:"); print b[3], b[4], b[5], b[6], b[7]":"b[8], b[9], "NA", $4, B73[b[3]":"b[4]], $6, B73[b[3]":"b[4]]-$6 }' ${g}.${tr}.q255.B73coord.41bp.CG.bed ${g}.${tr}.q255.${g}coord.41bp.CG.bed | sort -k1,1 -k2,2n > ${g}.${tr}.q255.41bp.CG.bed; done; done
+```
+
 
 
 
