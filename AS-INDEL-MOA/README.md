@@ -174,9 +174,20 @@ for g in [NAMparents...]; do gawk -v OFS='\t' '{split($4, a, ":|_"); if(length(a
 
 
 
+## Step 4: Determine MOA-seq coverage at/around INDELs
+
+NAM alleles do not have correct chromosome names yet and both need to be sorted but not for A188 A619 Mo17 W22:
+
+```{bash}
+for g in [NAMparents...]; do gawk -v OFS='\t' -v g=${g} '{print g"-chr" $0}' ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.filtered.${g}coords.bed | sortBed -g ref_B73${g}.fasta.size.new.txt > ${g}_againstB73.seqs.biallelic.crossmapped.merged.pm3Ins.filtered.${g}coords.chrm_names.sorted.bed; done
+
+for g in [NAMparents...]; do sortBed -g ref_B73${g}.fasta.size.new.txt  -i ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.filtered.B73coords.bed > ${g}_againstB73.seqs.biallelic.crossmapped.merged.pm3Ins.filtered.B73coords.sorted.bed; done
+```
+NOTE: ref_B73${g}.fasta.size.new.txt is a tab-separated file, containing the contig name in the first column and the contig size in the second.
 
 
-
+This is followed up by the steps described here: https://github.com/jengelhorn/AS-MOA
+Only using the scripts which are adapted to INDELs and provided here.
 
 
 
