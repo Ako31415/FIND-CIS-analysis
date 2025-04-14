@@ -185,9 +185,24 @@ for g in [NAMparents...]; do sortBed -g ref_B73${g}.fasta.size.new.txt  -i ${g}_
 ```
 NOTE: ref_B73${g}.fasta.size.new.txt is a tab-separated file, containing the contig name in the first column and the contig size in the second.
 
+<br/><br/>
 
 This is followed up by the steps described here: https://github.com/jengelhorn/AS-MOA
+
 Only using the scripts which are adapted to INDELs and provided here.
+
+
+
+
+
+## Step 5: Calculate methylation at/around INDELs
+
+
+
+
+
+
+
 
 
 
