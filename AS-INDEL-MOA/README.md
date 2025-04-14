@@ -1,5 +1,7 @@
 # Analysis pipeline for allele-specific MOA-seq analysis using INDELs instead of SNPs
 
+*Main code was written by Amelie Kok. Scripts for integration with MOA-seq were written by Julia Engelhorn*
+
 This part of the pipeline shows how a list of biallelic INDELs is created by pairwise genome alignments.
 
 After mapping of MOA-seq reads to the genomes an analysis of allele-specific transcription factor (TF) binding can be performed similarly as for SNPs (described here: https://github.com/jengelhorn/AS-MOA ).
