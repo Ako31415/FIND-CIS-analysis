@@ -1,6 +1,8 @@
 
 # Analysis of methylation at transcription factor binding sites 
 
+*Code was written by Amelie Kok with support by Julia Engelhorn*
+
 Transcription factor (TF) binding sites were determined through MOA-seq and following analysis described here:
 https://github.com/jengelhorn/AS-MOA
 
