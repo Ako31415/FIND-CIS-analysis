@@ -1,10 +1,10 @@
 # Analysis pipeline for allele-specific MOA-seq analysis using INDELs instead of SNPs
 
-This part of the pipeline shows how a list of biallelic INDELs is created pairwise genome alignments.
+This part of the pipeline shows how a list of biallelic INDELs is created by pairwise genome alignments.
 
 After mapping of MOA-seq reads to the genomes an analysis of allele-specific transcription factor (TF) binding can be performed similarly as for SNPs (described here: https://github.com/jengelhorn/AS-MOA ).
 
-Additionally an analysis of allele-specific methylation can be performed (see ../methylationAnalysis) and sites can also be used for bQTL mapping (see ../bQTL-Analysis).
+Additionally, an analysis of allele-specific methylation can be performed (see ../methylationAnalysis) and sites can also be used for bQTL mapping (see ../bQTL-Analysis).
 
 
 <br/><br/>
@@ -68,7 +68,7 @@ Create a BED file with only INDELs from the VCF files created in the previous st
 for g in [NAMparents...]; do gawk -v OFS='\t' '{if(!($0 ~ "^#")){if((length($4)>1 && length($4)<51) || (length($5)>1 && length($5)<51)){print $1, $2-1, $2+length($4), $1":"$2":"$4":"$5}}}' ${g}_againstB73.vcf > ${g}_againstB73.INDELs.bed; done
 ```
 
-Biallelic sites were determined as sites where every inbred line with the insertion allele had the same insertion sequence and position. The other allele remaining then was a share deletion allele.
+Biallelic sites were determined as sites where every inbred line with the insertion allele had the same insertion sequence and position. The other allele remaining then was a shared deletion allele.
 
 <br/><br/>
 
