@@ -7,6 +7,8 @@ After mapping of MOA-seq reads to the genomes an analysis of allele-specific tra
 Additionally, an analysis of allele-specific methylation can be performed (see ../methylationAnalysis) and sites can also be used for bQTL mapping (see ../bQTL-Analysis).
 
 
+Please note that INDEL detection by whole genome alignment is challenging in regions with e.g. local repeats or stretches of the same base. We noticed that especially positioning of one base pair INDELs in these regions can be ambiguous and lead to e.g. omission of some of these small deletions and hence an errouness genotype call. We included several quality control steps to exclude as many of these cases as possible, e.g. removal of overlapping INDLEs, translating the start and stop coordinates separately and re-checking the correct length of the insertion site. However, we cannot completely rule out that some ambiguous genotype information was retained in our final lists and therefore advise users to carefully check the local sequence when working with specific bQTL of interest.
+
 <br/><br/>
 
 ## Step 1: pairwise genome alignments
