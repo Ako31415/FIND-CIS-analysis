@@ -12,11 +12,16 @@ Additionally an analysis of allele-specific methylation can be performed (see ..
 
 Genomes of each NAM parent are aligned to one reference genome (here: B73) using Anchorwave v1.2.2.
 
+
+<br/><br/>
+
 1. Gene sequences of B73 are extracted using anchorwave gff2seq
 
 ```{bash}
 anchorwave gff2seq -r Zm-B73-REFERENCE-NAM-5.0.B73.fa -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.57.B73-chr.gff3 -o B73_anchors_cds.fa
 ```
+
+<br/><br/>
 
 2. Gene sequences are aligned to the B73/reference sequence, and each of the other NAM parents genomes to localise anchors
 
@@ -25,6 +30,8 @@ minimap2 -x splice -t 50 -k 12 -a -p 0.4 -N 20 Zm-B73-REFERENCE-NAM-5.0.B73.fa B
 
 for g in [NAMparents...]; do echo "${g}"; mkdir ${g}; minimap2 -x splice -t 10 -k 12 -a -p 0.4 -N 20 ${g}.pseudomolecules-v1-sm.fasta B73_anchors_cds.fa > B73cds_against_${g}.sam; done
 ```
+
+<br/><br/>
 
 3. Pairwise alignments are created using anchorwave proali
 
@@ -40,6 +47,8 @@ Variants are extracted from the MAF (multiple alignment file) output files using
 ```{bash}
 for g in [NAMparents...]; do wgatools call ${g}_againstB73.maf -n ${g} -s -l 1 -t 80 -v > ${g}_againstB73.vcf; done
 ```
+
+<br/><br/>
 
 Chain files are created to enable lift over of coordinates between genomes:
 
@@ -58,12 +67,15 @@ for g in [NAMparents...]; do gawk -v OFS='\t' '{if(!($0 ~ "^#")){if((length($4)>
 
 Biallelic sites were determined as sites where every inbred line with the insertion allele had the same insertion sequence and position. The other allele remaining then was a share deletion allele.
 
+<br/><br/>
+
 Create one file with the sequences of INDELs as 4th and 5th column:
 
 ```{bash}
 for g in [NAMparents...]; do gawk -v OFS='\t' '{split($4, a, ":"); print $1, $2, $3, a[3]":"a[4]}' ${g}_againstB73.INDELs.bed >> All_againstB73.INDELs.seqs.tsv; done
 ```
 
+<br/><br/>
 
 Use bash sort and uniq -c to find out how often an INDEL occurs between B73 and each of the different NAM inbred lines. If an INDEL varies in sequence at a position there will be two separate entries.
 
@@ -71,12 +83,15 @@ Use bash sort and uniq -c to find out how often an INDEL occurs between B73 and 
 sort All_againstB73.INDELs.seqs.tsv | uniq -c | gawk -v OFS='\t' '{print $1, $2, $3, $4, $5}' > All_againstB73.INDELs.seqs.uniq.tsv
 ```
 
+<br/><br/>
+
 Remove the count column in order to run bedtools intersect:
 
 ```{bash}
 gawk -v OFS='\t' '{print $2, $3, $4, $5}' All_againstB73.INDELs.seqs.uniq.tsv | sort -k1,1 -k2,2n > All_againstB73.INDELs.seqs.uniq.noCounts.bed
 ```
 
+<br/><br/>
 
 Run bedtools intersect in order to identify INDELs overlapping in their B73 coordinates to exclude them:
 
@@ -84,6 +99,7 @@ Run bedtools intersect in order to identify INDELs overlapping in their B73 coor
 bedtools intersect -a All_againstB73.INDELs.seqs.uniq.noCounts.bed -b All_againstB73.INDELs.seqs.uniq.noCounts.bed -wa -wb -loj > All_againstB73.INDELs.seqs.uniq.noCounts.intersect.tsv
 ```
 
+<br/><br/>
 
 Only keep entries that occur only once as overlapping with themselves and remove the rest: 
 
@@ -91,12 +107,15 @@ Only keep entries that occur only once as overlapping with themselves and remove
 gawk -v OFS='\t' 'BEGIN{vars["-"]="-"; dups["-"]="-"}{if($1":"$2":"$3":"$4 in vars){ dups[$1":"$2":"$3":"$4]=$1":"$2":"$3":"$4 } else if($1":"$2":"$3":"$4==$5":"$6":"$7":"$8 || $5=="."){ vars[$1":"$2":"$3":"$4]=$1":"$2":"$3":"$4 } else { vars[$1":"$2":"$3":"$4]=$1":"$2":"$3":"$4 }} END{ for(i in vars){ if(!(i in dups)){ split(vars[i], a, ":"); print a[1], a[2], a[3], a[4]":"a[5] }}}' All_againstB73.INDELs.seqs.uniq.noCounts.intersect.tsv | sort -k1,1 -k2,2n > All_againstB73.INDELs.seqs.biallelic.bed
 ```
 
+<br/><br/>
+
 Take the counts of how often the INDELs occur in the different hybrids and add them to the biallic file in order to filter for a minimum of 2 hybrids the variants occur in:
 
 ```{bash}
 gawk -v OFS='\t' '{if(NR==FNR){ counts[$2"_"$3"_"$4"_"$5]=$1; next} if($1"_"$2"_"$3"_"$4 in counts){ print $0, counts[$1"_"$2"_"$3"_"$4] }}' All_againstB73.INDELs.seqs.uniq.bed All_againstB73.INDELs.seqs.biallelic.bed | sort -k1,1 -k2,2n > All_againstB73.INDELs.seqs.biallelic.counts.tsv
 ```
 
+<br/><br/>
 
 Filter out positions that only occur in 1 hybrid:
 
@@ -104,18 +123,23 @@ Filter out positions that only occur in 1 hybrid:
 gawk -v OFS='\t' '{if($5>1){ print $1, $2, $3, $4"_"$5 }}' All_againstB73.INDELs.seqs.biallelic.counts.tsv > All_againstB73.INDELs.seqs.biallelic.counts.min2hyb.bed
 ```
 
+<br/><br/>
+
 Create BED files with three positions before and after the INDEL. This is so that there are some bases to compare coverage for the deletion allele. Start and Stop coordinates are split into 4 separate rows to make liftover easier:
 
 ```{bash}
 gawk -v OFS='\t' '{print $1, $2-2, $2-1, $4"_"$1"_"$2"_"$3"_St1\n" $1, $2, $2+1, $4"_"$1"_"$2"_"$3"_St2\n" $1, $3-1, $3, $4"_"$1"_"$2"_"$3"_Sp1\n" $1, $3+1, $3+2, $4"_"$1"_"$2"_"$3"_Sp2"}' All_againstB73.INDELs.seqs.biallelic.counts.min2hyb.bed > All_againstB73.INDELs.seqs.biallelic.counts.min2hyb.pm3bp.bed
 ```
 
+<br/><br/>
 
 Lift over files with start and stop positions of the selected INDELs to each NAM parent genome using CrossMap (version 0.7.0). The chain files created in step 2 are used.
 
 ```{bash}
 for g in [NAMparents...]; do CrossMap bed --chromid a --unmap-file ${g}_againstB73.seqs.biallelic.pm3bp.unmapped.bed ${g}_againstB73.chain All_againstB73.INDELs.seqs.biallelic.counts.min2hyb.pm3bp.bed ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.bed; done
 ```
+
+<br/><br/>
 
 Merge start and stop positions accordingly after lift over, if all 4 coordinates are present:
 
@@ -128,11 +152,15 @@ for g in [NAMparents...]; do echo "${g}"; gawk -v OFS='\t' '{split($4, a, "_"); 
 ```
 
 
+<br/><br/>
+
 If genome carries the insertion allele, take the coordinates of the insertion itself. If genome carries the deletion allele, get +/-3 bp around the deletion site.:
 
 ```{bash}
 for g in [NAMparents...]; do echo "${g}"; gawk -v OFS='\t' '{ if(($4-$3)==1){ print $1, $2-1, $5, $6"_del" } else if(($4-$3)>1){ print $1, $3, $4-1, $6"_ins" } }' ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.bed | sort -k1,1 -k2,2n > ./${g}/${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed; done
 ```
+
+<br/><br/>
 
 Check if these sites overlap in the NAM genomes coordinates (and therefore would not be biallelic):
 
@@ -140,11 +168,15 @@ Check if these sites overlap in the NAM genomes coordinates (and therefore would
 for g in [NAMparents...]; do echo "${g}"; bedtools intersect -a ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed -b ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.bed -wo > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.bed; done
 ```
 
+<br/><br/>
+
 From the intersected file, get those that need to be removed in an extra file:
 
 ```{bash}
 for g in [NAMparents...]; do gawk -v OFS='\t' '{if(!($4==$8)){split($4, a, "_"); split($8, b, "_"); print a[1]"_"a[2]"_"a[3]"_"a[4]"_"a[5] "\n" b[1]"_"b[2]"_"b[3]"_"b[4]"_"b[5] }}' ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.bed | sort | uniq > ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.bed; done
 ```
+
+<br/><br/>
 
 Get list of those, where hybrid shows NAM allele, to check if still >=2 hybrids share this allele:
 
@@ -157,12 +189,15 @@ cat B97_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.over
 gawk -v OFS='\t' '{split($2, a, "_"); if((a[2]-$1)<2){ print $2 }}' All.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.bed > All.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.toRemove.bed
 ```
 
+<br/><br/>
+
 Create one file for every hybrid with those that have to be removed:
 
 ```{bash}
 for g in [NAMparents...]; do cat All.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.withNAMAllel.toRemove.bed ${g}_againstB73.seqs.biallelic.pm3bp.crossmapped.merged.pm3Ins.intersect.overlapList.bed > ${g}_againstB73.seqs.biallelic.pm3bp.toRemove.bed; done
 ```
 
+<br/><br/>
 
 Remove sites from the list of every hybrid; create one file for each coordinate system:
 
@@ -242,12 +277,19 @@ Join methylation of both the B73 and the NAM allele into one file
 The new columns are: "B73_chr", "B73_pos", "B73_allele", "NAM_allele", "NAM_ID", "GT", "AMP", "BF", "B73_meth", "NAM_meth", "meth_diff"
 
 where "B73_chr", "B73_pos" are chromosome and stop position
+
 "B73_allele" and "NAM_allele" are the sequences of each allele
+
 "NAM_ID" is the chromosome and stop position in non-B73 parent coordinates
+
 "GT" is the genotype: 0/0 is homozygous B73 and 1/1 is heterozygous
-"AMP" is either equal to 'AMP' if MP is classified as an AMP or equal 'MP' if not classified as AMP
+
+"AMP" this column is all NA for the moment, a classification of if the site is an AMP or not can be added here later
+
 "BF" is the binding frequency
+
 "B73_meth", "NAM_meth" are the calculated methylation over the given window as it is in the B73 or the non-B73 parent
+
 "meth_diff" is the difference in methylation between the parents over this window, i.e. "B73_meth" - "NAM_meth"
 
 ```{bash}
