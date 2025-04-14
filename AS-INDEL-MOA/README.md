@@ -7,6 +7,7 @@ After mapping of MOA-seq reads to the genomes an analysis of allele-specific tra
 Additionally an analysis of allele-specific methylation can be performed (see ../methylationAnalysis) and sites can also be used for bQTL mapping (see ../bQTL-Analysis).
 
 
+<br/><br/>
 
 ## Step 1: pairwise genome alignments
 
@@ -39,6 +40,7 @@ for g in [NAMparents...]; do echo "${g}"; mkdir ${g}; minimap2 -x splice -t 10 -
 for g in [NAMparents...]; do echo "${g}"; anchorwave proali -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.57.B73-chr.gff3 -as B73_anchors_cds.fa -r Zm-B73-REFERENCE-NAM-5.0.B73.fa -a B73cds_against_${g}.sam -ar B73cds_against_B73.sam -s ${g}.pseudomolecules-v2.1-sm.fasta -n anchors -R 1 -Q 1 -o ${g}_againstB73.maf -t 14; done
 ```
 
+<br/><br/>
 
 ## Step 2: Variant calling
 
@@ -56,6 +58,7 @@ Chain files are created to enable lift over of coordinates between genomes:
 for g in [NAMparents...]; do wgatools maf2chain ./${g}/${g}_againstB73.maf -t 55 -v > ./${g}/${g}_againstB73.chain; done
 ```
 
+<br/><br/>
 
 ## Step 3: Determining biallelic INDELs
 
@@ -208,6 +211,7 @@ for g in [NAMparents...]; do gawk -v OFS='\t' '{split($4, a, ":|_"); if(length(a
 ```
 
 
+<br/><br/>
 
 ## Step 4: Determine MOA-seq coverage at/around INDELs
 
@@ -228,7 +232,7 @@ Only using the scripts which are adapted to INDELs and provided here.
 
 
 
-
+<br/><br/>
 
 ## Step 5: Calculate methylation at/around INDELs
 
